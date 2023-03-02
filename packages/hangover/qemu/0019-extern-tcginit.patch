@@ -1,0 +1,11 @@
+--- a/accel/tcg/tcg-all.c
++++ b/accel/tcg/tcg-all.c
+@@ -110,7 +110,7 @@
+ 
+ bool mttcg_enabled;
+ 
+-static int tcg_init_machine(MachineState *ms)
++extern int tcg_init_machine(MachineState *ms)
+ {
+     TCGState *s = TCG_STATE(current_accel());
+ #ifdef CONFIG_USER_ONLY

@@ -225,9 +225,6 @@ _configure_qemu(){
 	CFLAGS=$_saved_CFLAGS
 	CXXFLAGS=$_saved_CXXFLAGS
 	LDFLAGS=$_saved_LDFLAGS
-
-	make -j $TERMUX_MAKE_PROCESSES
-	read -p "build done!.."
 }
 
 termux_step_configure() {
@@ -244,14 +241,20 @@ termux_step_make() {
 		QUIET_BUILD="-s"
 	fi
 
-	if [ -z "$TERMUX_PKG_EXTRA_MAKE_ARGS" ]; then
-		make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD
-	else
-		make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD ${TERMUX_PKG_EXTRA_MAKE_ARGS}
-	fi
+	#cd "$TERMUX_PKG_BUILDDIR/qemu"
+	#make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD
 
-	cd "$TERMUX_PKG_BUILDDIR/qemu"
-	make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD
+	cd "$TERMUX_PKG_BUILDDIR"
+
+	make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD dlls/xtajit/all
+
+	#if [ -z "$TERMUX_PKG_EXTRA_MAKE_ARGS" ]; then
+	#	make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD
+	#else
+	#	make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD ${TERMUX_PKG_EXTRA_MAKE_ARGS}
+	#fi
+
+	read -p "done.."
 }
 
 termux_step_make_install() {

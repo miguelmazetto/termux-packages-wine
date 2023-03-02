@@ -1,0 +1,11 @@
+--- a/dlls/xtajit/unixlib.c
++++ b/dlls/xtajit/unixlib.c
+@@ -133,7 +133,7 @@
+ static void init_thread_cpu(void)
+ {
+     if (!thread_cpu)
+-        thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("Westmere"));
++        thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("max"));
+     if (!thread_cpu)
+     {
+         fprintf(stderr, "Unable to find CPU definition\n");

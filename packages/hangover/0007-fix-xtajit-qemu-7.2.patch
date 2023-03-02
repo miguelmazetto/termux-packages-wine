@@ -1,0 +1,40 @@
+--- a/dlls/xtajit/unixlib.c
++++ b/dlls/xtajit/unixlib.c
+@@ -51,7 +51,7 @@
+ static void (*ptcg_register_thread)(void);
+ static void (*pmodule_call_init)(module_init_type);
+ static void (*pqemu_init_cpu_list)(void);
+-static void (*ptcg_exec_init)(unsigned long);
++static int (*ptcg_init_machine)(void*/*MachineState*/);
+ static void (*ptcg_prologue_init)(void*/*TCGContext*/);
+ static void (*ptcg_region_init)(void);
+ static CPUState* (*pcpu_create)(const char *typename);
+@@ -85,7 +85,7 @@
+     LOAD_FUNCPTR(tcg_register_thread);
+     LOAD_FUNCPTR(module_call_init);
+     LOAD_FUNCPTR(qemu_init_cpu_list);
+-    LOAD_FUNCPTR_OPT(tcg_exec_init);
++    LOAD_FUNCPTR(tcg_init_machine);
+     LOAD_FUNCPTR(tcg_prologue_init);
+     LOAD_FUNCPTR(tcg_region_init);
+     LOAD_FUNCPTR(cpu_create);
+@@ -96,7 +94,6 @@
+     LOAD_FUNCPTR(error_init);
+     LOAD_FUNCPTR(page_set_flags);
+     LOAD_FUNCPTR(cpu_sync_bndcs_hflags);
+-    //LOAD_FUNCPTR(tcg_ctx);
+     LOAD_FUNCPTR(libqemu_get_tcg_ctx);
+     ptcg_ctx = plibqemu_get_tcg_ctx();
+ 
+@@ -118,9 +115,8 @@
+         }
+     }
+ 
+-    if (ptcg_exec_init)
+-        ptcg_exec_init(0);
+-    thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("Westmere"));
++    ptcg_init_machine(0);
++    thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("max"));
+     pcpu_reset(thread_cpu);
+ 
+     ptcg_prologue_init(*ptcg_ctx);
