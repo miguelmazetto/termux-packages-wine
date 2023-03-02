@@ -1,0 +1,20 @@
+--- a/dlls/xtajit/unixlib.c
++++ b/dlls/xtajit/unixlib.c
+@@ -120,7 +120,7 @@
+ 
+     if (ptcg_exec_init)
+         ptcg_exec_init(0);
+-    thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("Westmere"));
++    thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("max"));
+     pcpu_reset(thread_cpu);
+ 
+     ptcg_prologue_init(*ptcg_ctx);
+@@ -139,7 +139,7 @@
+ static void init_thread_cpu(void)
+ {
+     if (!thread_cpu)
+-        thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("Westmere"));
++        thread_cpu = pcpu_create(X86_CPU_TYPE_NAME("max"));
+     if (!thread_cpu)
+     {
+         fprintf(stderr, "Unable to find CPU definition\n");
