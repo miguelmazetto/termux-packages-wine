@@ -82,9 +82,9 @@ _apply_commits() {
 }
 
 _setup_qemu(){
-	local _url="https://download.qemu.org/qemu-5.2.0.tar.xz"
+	local _url="https://download.qemu.org/qemu-7.2.0.tar.xz"
 	local _path="$TERMUX_PKG_CACHEDIR/$(basename $_url)"
-	termux_download "$_url" "$_path" cb18d889b628fbe637672b0326789d9b0e3b8027e0445b936537c78549df17bc
+	termux_download "$_url" "$_path" 5b49ce2687744dad494ae90a898c52204a3406e84d072482a1e1be854eeb2157
 
 	#local _extract_tar="${_path%.*}"
 	#if [ ! -f "$_extract_tar" ]; then
@@ -96,18 +96,21 @@ _setup_qemu(){
 	rm -rf "$TERMUX_PKG_SRCDIR/qemu"
 	mkdir -p "$TERMUX_PKG_CACHEDIR/qemu-tmp"
 
-	tar -C "$TERMUX_PKG_CACHEDIR/qemu-tmp" \
-		--strip-component=1 -xf "$_path" --exclude "roms/*"
+	tar -C "$TERMUX_PKG_CACHEDIR/qemu-tmp" --strip-component=1 \
+		-xf "$_path" --exclude "roms/*"
 
 	mv -f "$TERMUX_PKG_CACHEDIR/qemu-tmp" "$TERMUX_PKG_SRCDIR/qemu"
 	cd "$TERMUX_PKG_SRCDIR/qemu"
 	find "$PKG_SCRIPTDIR/qemu" -type f -name '*.patch' -print0 | sort -z | xargs -t -0 -n 1 patch -p1 -i
+	#cp -rf "$TERMUX_PKG_SRCDIR/qemu" "$TERMUX_PKG_SRCDIR/qemu-orig"
+	#patch -p1 < "$PKG_SCRIPTDIR/current_patch"
 	cd $1
 }
 
 termux_step_post_get_source() {
 	_download_commits $TERMUX_PKG_CACHEDIR $PWD
 	_apply_commits $TERMUX_PKG_CACHEDIR $PWD
+	_setup_qemu $PWD
 }
 
 termux_step_host_build() {
@@ -121,7 +124,6 @@ termux_step_host_build() {
 }
 
 termux_step_pre_configure() {
-	_setup_qemu $PWD
 
 	# Fix dlltool & windres
 	ln -sf "$(which llvm-ar)" "$(dirname "$(which llvm-ar)")/llvm-dlltool"
@@ -193,7 +195,6 @@ _configure_qemu(){
 		--disable-vnc \
 		--disable-vnc-sasl \
 		--disable-vnc-jpeg \
-		--disable-vnc-png \
 		--disable-xen \
 		--disable-xen-pci-passthrough \
 		--disable-virtfs \
@@ -210,13 +211,11 @@ _configure_qemu(){
 		--disable-lzfse \
 		--disable-seccomp \
 		--disable-libssh \
-		--disable-libxml2 \
 		--disable-bochs \
 		--disable-cloop \
 		--disable-dmg \
 		--disable-parallels \
 		--disable-qed \
-		--disable-sheepdog \
 		--disable-spice \
 		--disable-libusb \
 		--disable-usb-redir \
@@ -226,6 +225,9 @@ _configure_qemu(){
 	CFLAGS=$_saved_CFLAGS
 	CXXFLAGS=$_saved_CXXFLAGS
 	LDFLAGS=$_saved_LDFLAGS
+
+	make -j $TERMUX_MAKE_PROCESSES
+	read -p "build done!.."
 }
 
 termux_step_configure() {

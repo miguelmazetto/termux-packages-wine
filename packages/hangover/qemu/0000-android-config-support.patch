@@ -1,53 +1,41 @@
-diff -uNr qemu-5.2.0/configure qemu-5.2.0.mod/configure
---- qemu-5.2.0/configure	2020-12-08 18:59:44.000000000 +0200
-+++ qemu-5.2.0.mod/configure	2020-12-09 16:24:26.073781672 +0200
-@@ -2931,6 +2931,8 @@
- fi
+--- a/meson.build
++++ b/meson.build
+@@ -1217,7 +1217,7 @@
+     # Debian has removed -lgpg-error from libgcrypt-config
+     # as it "spreads unnecessary dependencies" which in
+     # turn breaks static builds...
+-    if gcrypt.found() and enable_static
++    if gcrypt.found()
+       gcrypt = declare_dependency(dependencies: [
+         gcrypt,
+         cc.find_library('gpg-error', required: true, kwargs: static_kwargs)])
+@@ -1978,7 +1978,7 @@
+ config_host_data.set('CONFIG_SENDFILE', cc.has_function('sendfile'))
+ config_host_data.set('CONFIG_SETNS', cc.has_function('setns') and cc.has_function('unshare'))
+ config_host_data.set('CONFIG_SYNCFS', cc.has_function('syncfs'))
+-config_host_data.set('CONFIG_SYNC_FILE_RANGE', cc.has_function('sync_file_range'))
++#config_host_data.set('CONFIG_SYNC_FILE_RANGE', cc.has_function('sync_file_range'))
+ config_host_data.set('CONFIG_TIMERFD', cc.has_function('timerfd_create'))
+ config_host_data.set('HAVE_COPY_FILE_RANGE', cc.has_function('copy_file_range'))
+ config_host_data.set('HAVE_GETIFADDRS', cc.has_function('getifaddrs'))
+@@ -2151,10 +2151,7 @@
+     CPU_FREE(cpuset);
+     return 0;
+   }''', dependencies: threads))
+-config_host_data.set('CONFIG_SIGNALFD', cc.links(gnu_source_prefix + '''
+-  #include <sys/signalfd.h>
+-  #include <stddef.h>
+-  int main(void) { return signalfd(-1, NULL, SFD_CLOEXEC); }'''))
++config_host_data.set('CONFIG_SIGNALFD', false)
+ config_host_data.set('CONFIG_SPLICE', cc.links(gnu_source_prefix + '''
+   #include <unistd.h>
+   #include <fcntl.h>
+@@ -2489,7 +2486,7 @@
+   }
+ endif
  
- has_libgcrypt() {
-+	return 0
-+
-     if ! has "libgcrypt-config"
-     then
- 	return 1
-@@ -3000,10 +3002,7 @@
-         # Debian has removed -lgpg-error from libgcrypt-config
-         # as it "spreads unnecessary dependencies" which in
-         # turn breaks static builds...
--        if test "$static" = "yes"
--        then
--            gcrypt_libs="$gcrypt_libs -lgpg-error"
--        fi
-+        gcrypt_libs="$gcrypt_libs -lgpg-error"
- 
-         # Link test to make sure the given libraries work (e.g for static).
-         write_c_skeleton
-@@ -4097,6 +4096,7 @@
- if compile_prog "" "" ; then
-   signalfd=yes
- fi
-+signalfd=no
- 
- # check if optreset global is declared by <getopt.h>
- optreset="no"
-@@ -5973,6 +5973,7 @@
- if test "$darwin" = "yes" ; then
-   echo "CONFIG_DARWIN=y" >> $config_host_mak
- fi
-+ivshmem=no
- 
- if test "$solaris" = "yes" ; then
-   echo "CONFIG_SOLARIS=y" >> $config_host_mak
-@@ -6088,9 +6089,9 @@
- if test "$posix_fallocate" = "yes" ; then
-   echo "CONFIG_POSIX_FALLOCATE=y" >> $config_host_mak
- fi
--if test "$sync_file_range" = "yes" ; then
--  echo "CONFIG_SYNC_FILE_RANGE=y" >> $config_host_mak
--fi
-+#if test "$sync_file_range" = "yes" ; then
-+#  echo "CONFIG_SYNC_FILE_RANGE=y" >> $config_host_mak
-+#fi
- if test "$fiemap" = "yes" ; then
-   echo "CONFIG_FIEMAP=y" >> $config_host_mak
- fi
+-have_ivshmem = config_host_data.get('CONFIG_EVENTFD')
++have_ivshmem = false
+ host_kconfig = \
+   (get_option('fuzzing') ? ['CONFIG_FUZZ=y'] : []) + \
+   (have_tpm ? ['CONFIG_TPM=y'] : []) + \

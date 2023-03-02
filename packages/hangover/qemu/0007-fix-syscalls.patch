@@ -1,7 +1,7 @@
 diff -uNr qemu-5.1.0/linux-user/elfload.c qemu-5.1.0.mod/linux-user/elfload.c
 --- qemu-5.1.0/linux-user/elfload.c	2020-08-11 22:17:15.000000000 +0300
 +++ qemu-5.1.0.mod/linux-user/elfload.c	2020-09-05 17:01:16.823064611 +0300
-@@ -2331,7 +2331,7 @@
+@@ -2771,7 +2771,7 @@
                        abi_ulong guest_hiaddr)
  {
      /* In order to use host shmat, we must be able to honor SHMLBA.  */
@@ -13,7 +13,7 @@ diff -uNr qemu-5.1.0/linux-user/elfload.c qemu-5.1.0.mod/linux-user/elfload.c
 diff -uNr qemu-5.1.0/linux-user/syscall.c qemu-5.1.0.mod/linux-user/syscall.c
 --- qemu-5.1.0/linux-user/syscall.c	2020-09-05 16:58:00.063849385 +0300
 +++ qemu-5.1.0.mod/linux-user/syscall.c	2020-09-05 17:02:57.910949156 +0300
-@@ -45,7 +45,7 @@
+@@ -48,7 +48,7 @@
  #include <poll.h>
  #include <sys/times.h>
  #include <sys/shm.h>
@@ -22,7 +22,7 @@ diff -uNr qemu-5.1.0/linux-user/syscall.c qemu-5.1.0.mod/linux-user/syscall.c
  #include <sys/statfs.h>
  #include <utime.h>
  #include <sys/sysinfo.h>
-@@ -78,12 +78,17 @@
+@@ -84,12 +84,17 @@
  #endif
  
  #define termios host_termios
