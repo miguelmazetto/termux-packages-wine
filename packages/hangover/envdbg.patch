@@ -1,0 +1,11 @@
+--- a/dlls/ntdll/unix/env.c
++++ b/dlls/ntdll/unix/env.c
+@@ -1863,7 +1863,7 @@
+         NtCurrentTeb()->Tib.ExceptionList = (void *)((char *)NtCurrentTeb() + teb_offset);
+         wow_peb = (PEB32 *)((char *)peb + page_size);
+         set_thread_id( NtCurrentTeb(),  GetCurrentProcessId(), GetCurrentThreadId() );
+-        ERR( "starting %s in experimental wow64 mode\n", debugstr_us(&params->ImagePathName) );
++        ERR( "starting %s in experimental wow64 mode %#08x != %#08x\n", debugstr_us(&params->ImagePathName), main_image_info.Machine, current_machine );
+     }
+ #endif
+ 

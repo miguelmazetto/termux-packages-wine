@@ -1,0 +1,29 @@
+--- a/configure.ac
++++ b/configure.ac
+@@ -859,7 +859,9 @@
+ 
+     saved_CC=$CC
+     saved_CFLAGS=$CFLAGS
++    saved_LDFLAGS=$LDFLAGS
+ 
++    LDFLAGS=""
+     CFLAGS=${CROSSCFLAGS:-"-g -O2"}
+     AS_VAR_COPY([CC],[${wine_arch}_CC])
+     AS_VAR_COPY([${wine_arch}_CFLAGS],[CFLAGS])
+@@ -895,7 +897,7 @@
+         fi
+         llvm_extra_cflags="-target $llvm_target -fuse-ld=lld"
+         case $llvm_target in
+-          *windows) llvm_cflags="-Wl,-subsystem:console -Wl,-WX" ;;
++          *windows) llvm_cflags="-Wl,-subsystem:console" ;;
+         esac
+         WINE_TRY_PE_CFLAGS([$llvm_extra_cflags $llvm_cflags],
+                            [target=$llvm_target
+@@ -999,6 +1001,7 @@
+ 
+     CC=$saved_CC
+     CFLAGS=$saved_CFLAGS
++    LDFLAGS=$saved_LDFLAGS
+ done
+ 
+ if test $HOST_ARCH = aarch64 -a "x$PE_ARCHS" = x

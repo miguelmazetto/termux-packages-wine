@@ -1,0 +1,11 @@
+--- a/linux-user/main.c
++++ b/linux-user/main.c
+@@ -868,3 +868,7 @@
+     /* never exits */
+     return 0;
+ }
++
++extern void** libqemu_get_tcg_ctx() {
++    return (void**)&tcg_ctx;
++}
+\ No newline at end of file

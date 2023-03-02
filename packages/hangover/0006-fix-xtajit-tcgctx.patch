@@ -1,0 +1,22 @@
+--- a/dlls/xtajit/unixlib.c
++++ b/dlls/xtajit/unixlib.c
+@@ -61,6 +61,7 @@
+ static void (*perror_init)(const char *);
+ static void (*ppage_set_flags)(target_ulong start, target_ulong end, int flags);
+ static void (*pcpu_sync_bndcs_hflags)(CPUX86State *env);
++static void** (*plibqemu_get_tcg_ctx)(void);
+ 
+ static void* *ptcg_ctx;
+ 
+@@ -95,7 +96,10 @@
+     LOAD_FUNCPTR(error_init);
+     LOAD_FUNCPTR(page_set_flags);
+     LOAD_FUNCPTR(cpu_sync_bndcs_hflags);
+-    LOAD_FUNCPTR(tcg_ctx);
++    //LOAD_FUNCPTR(tcg_ctx);
++    LOAD_FUNCPTR(libqemu_get_tcg_ctx);
++    ptcg_ctx = plibqemu_get_tcg_ctx();
++
+ #undef LOAD_FUNCPTR_OPT
+ #undef LOAD_FUNCPTR
+ 

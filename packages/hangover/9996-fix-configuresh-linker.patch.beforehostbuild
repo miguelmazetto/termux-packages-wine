@@ -1,0 +1,29 @@
+--- a/configure
++++ b/configure
+@@ -10631,7 +10631,9 @@
+ 
+     saved_CC=$CC
+     saved_CFLAGS=$CFLAGS
++    saved_LDFLAGS=$LDFLAGS
+ 
++    LDFLAGS=""
+     CFLAGS=${CROSSCFLAGS:-"-g -O2"}
+     eval CC=\$${wine_arch}_CC
+     eval ${wine_arch}_CFLAGS=\$CFLAGS
+@@ -10693,7 +10695,7 @@
+         fi
+         llvm_extra_cflags="-target $llvm_target -fuse-ld=lld"
+         case $llvm_target in
+-          *windows) llvm_cflags="-Wl,-subsystem:console -Wl,-WX" ;;
++          *windows) llvm_cflags="-Wl,-subsystem:console" ;;
+         esac
+         { as_ac_var=`printf "%s\n" "ac_cv_${wine_arch}_cflags_$llvm_extra_cflags $llvm_cflags" | $as_tr_sh`
+ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking whether $CC supports $llvm_extra_cflags $llvm_cflags" >&5
+@@ -11712,6 +11714,7 @@
+ 
+     CC=$saved_CC
+     CFLAGS=$saved_CFLAGS
++    LDFLAGS=$saved_LDFLAGS
+ done
+ 
+ if test $HOST_ARCH = aarch64 -a "x$PE_ARCHS" = x
