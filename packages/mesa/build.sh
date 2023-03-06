@@ -4,6 +4,7 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="docs/license.rst"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=23.0.0
+TERMUX_PKG_REVISION=2
 TERMUX_PKG_SRCURL=https://archive.mesa3d.org/mesa-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=01f3cff3763f09e0adabcb8011e4aebc6ad48f6a4dd4bae904fe918707d253e4
 TERMUX_PKG_DEPENDS="libandroid-shmem, libc++, libdrm, libexpat, libglvnd, libx11, libxext, libxfixes, libxshmfence, libxxf86vm, ncurses, zlib, zstd"
@@ -26,17 +27,12 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dllvm=enabled
 -Dshared-llvm=disabled
 -Dplatforms=x11
--Dgallium-drivers=swrast
--Dvulkan-drivers=
+-Dgallium-drivers=swrast,virgl
+-Dvulkan-drivers=swrast
 -Dosmesa=true
 -Dglvnd=true
+-Dxmlconfig=disabled
 "
-
-termux_step_post_get_source() {
-	# https://gitlab.freedesktop.org/mesa/mesa/-/issues/6505
-	# patch(1) cannot be used due to misapplication
-	sed -i "s/^llvm_modules = \[/\0'passes', /" meson.build
-}
 
 termux_step_pre_configure() {
 	termux_setup_cmake
