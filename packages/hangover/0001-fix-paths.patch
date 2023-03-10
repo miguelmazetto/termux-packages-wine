@@ -90,27 +90,6 @@ diff -uNr a/dlls/ntdll/unix/server.c b/dlls/ntdll/unix/server.c
  #endif
      p = dir + strlen( dir );
      if (dev != (unsigned long)dev)
-diff -uNr a/libs/wine/config.c b/libs/wine/config.c
---- a/libs/wine/config.c
-+++ b/libs/wine/config.c
-@@ -342,7 +342,7 @@
- }
- 
- static const char server_config_dir[] = "/.wine";        /* config dir relative to $HOME */
--static const char server_root_prefix[] = "/tmp/.wine";   /* prefix for server root dir */
-+static const char server_root_prefix[] = "@TERMUX_PREFIX@/tmp/.wine";   /* prefix for server root dir */
- static const char server_dir_prefix[] = "/server-";      /* prefix for server dir */
- 
- static char *config_dir;
-@@ -382,7 +382,7 @@
- {
-     char *p, *root;
- 
--#ifdef __ANDROID__  /* there's no /tmp dir on Android */
-+#if defined(__ANDROID__) && ! defined(__TERMUX__)  /* there's no /tmp dir on Android */
-     root = build_path( config_dir, ".wineserver" );
- #else
-     root = xmalloc( sizeof(server_root_prefix) + 12 );
 diff -uNr a/programs/winebrowser/main.c b/programs/winebrowser/main.c
 --- a/programs/winebrowser/main.c
 +++ b/programs/winebrowser/main.c
