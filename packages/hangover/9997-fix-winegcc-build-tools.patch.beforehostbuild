@@ -1,17 +1,17 @@
 --- a/tools/winegcc/Makefile.in
 +++ b/tools/winegcc/Makefile.in
 @@ -13,10 +13,10 @@
- 	-DLIBDIR="\"${libdir}\"" \
- 	-DBIN_TO_INCLUDEDIR=\"`${MAKEDEP} -R ${bindir} ${includedir}`\" \
- 	-DBIN_TO_LIBDIR=\"`${MAKEDEP} -R ${bindir} ${libdir}`\" \
+	-DLIBDIR="\"${libdir}\"" \
+	-DBIN_TO_INCLUDEDIR=\"`${MAKEDEP} -R ${bindir} ${includedir}`\" \
+	-DBIN_TO_LIBDIR=\"`${MAKEDEP} -R ${bindir} ${libdir}`\" \
 -	-DCC="\"$(CC)\"" \
 -	-DCPP="\"$(CPPBIN)\"" \
 -	-DCXX="\"$(CXX)\"" \
--	-DLD="\"$(LD)\"" \
+-	-DLD="\"$(LD)\""
 +	-DCC="\"clang\"" \
 +	-DCPP="\"clang\"" \
 +	-DCXX="\"clang++\"" \
 +	-DLD="\"ld\"" \
- 	-DPRELINK="\"$(PRELINK)\""
+ 
  
  INSTALL_DEV = $(PROGRAMS) $(winegcc_SYMLINKS)
