@@ -135,11 +135,8 @@ termux_step_host_build() {
 }
 
 termux_step_pre_configure() {
-<<<<<<< HEAD
-=======
 	#_setup_qemu $PWD
 	_setup_fex $PWD
->>>>>>> e56a926ef (hangover: Rebase to Wine 8.15, Add FEX)
 
 	# Fix dlltool & windres
 	ln -sf "$(which llvm-ar)" "$(dirname "$(which llvm-ar)")/llvm-dlltool"
