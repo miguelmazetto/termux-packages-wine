@@ -6,9 +6,9 @@ LICENSE
 LICENSE.OLD
 COPYING.LIB"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=8.15
+TERMUX_PKG_VERSION=8.17
 TERMUX_PKG_SRCURL=https://dl.winehq.org/wine/source/8.x/wine-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=ed8fae61784bca6475accc78eff26a9ec6b08001a7ae1698d52e25f9c2d422da
+TERMUX_PKG_SHA256=f01785bd3162c74e65deb13aa0add711e37c484454719bedd0e8c2b1a3469b7e
 TERMUX_PKG_DEPENDS="freetype, xwayland, cups, libdrm, libgmp, openldap, sdl2, libandroid-shmem, libc++"
 TERMUX_PKG_BUILD_DEPENDS="mesa-dev"
 TERMUX_PKG_NO_STATICSPLIT=true
@@ -56,7 +56,7 @@ _setup_llvm_mingw_toolchain() {
 	export PATH="$PATH:$_extract_path/bin"
 }
 
-HANGOVER_COMMITS=(fa6ddb204f4f924b4a63dcd2408d923881f01151 7924672109834aa59c9675cd78a80dbdc94b30e6 f3421d1f581a4a0dc854f62521d982c506e7427c a2b0912180087df06a45512f82d5e14457b7bbe3 1dd6de6acd6564e3a16f28f92cdd08d84848745d 1f07b7e8f39d2eac8013374481ea80ace74fd608 bfd32fede3ae6de9a7a4bf80715c462f3fa455f0 2ee22db416b2ee0dd78b44b05b1c137f510bfc87 f7f2e43509262804e6dbbc474b63de819bc2bd3e daa8fca4ab3e4f16f632b0e52454cccaf89babbf 7c2c7ffa34bbce7ec3e564891ba5986bb3e4d120 af59fd8eb16859f5b7c38786ca56ac4e76cb0e2f 4adb71e5e0de9daae853cdc4b758454ad30a95d2 80e923c50c139529a531c5be659f09d5bd8b57f1 1eb121c273ef389d41034be977e173507cc8c006 c3045bc09e46ec4abe070c19dcbd1e94a6d661df 5af013584dceef5366daeaa7c4b4ef55408b4961 629c2732e347ff5b2130fd7fae4b89bdb830a484)
+HANGOVER_COMMITS=(1d2434b06d2c5245651817e668f7309ad443a1d2 8928b725c113b9cb4c0452eb4793544936b310f0 408224739530d9aadb22af4a5581f8b7e36e6b7e ac80087015eb09f9c24d57fa026ebfa76f760a6b 1b63385b4c54dd4f86356e401bea88e9dfe6590e 54a5334f6ea6fea2496f9b6b8f3bce98cb5d8d3b dd204ea956efffb4e00c0eb2ade2abc4ec521622 1508a0cc72685844b9529f1053832ec256dda63a 1e612d4df6acc03bccc107158334b239d09ff43f 8f5b5d2747d6e5b21bf7ccb294869f50d98d44ed e9dd0e86d1fdc476f0ee2b216178da9930a7f107 9d10d8dc30627c26b05e23a1b34b79fd0379ed67 f5f060d697e63199294c1e9824a6d0f2052304c3 08fb281712a3cee6983b9efa9129c9aed910cede ffc6cbdca066b1f39da56975b5d90629f30edd11 258a1eb65e8c7b2c7a2c8fd9520e3c28371dec1b a3c1b14a983a621459cf726f97635ff67e0d7a34 2c38c5bead8ab9a2ae571e0f2b285d4a08217f62 697e333944a55c4945534148810fdf96152f4b86 8fc4c9bbc7023565b6bcec6097e76cb421c3a237 f07527a3e7046785c14c3808cfd860e26d7a6121 c8cd948054cc7fcc6a34323b219dbc9de24f55b2 32b7f95ecec8f731abd3210bcda90fd5a8878845 0a79dc5cc596c1021644fee02b46657edb5d5f9c)
 _download_commits() {
 	cd $1
 	local num_jobs="\j"
@@ -66,11 +66,14 @@ _download_commits() {
 			wait -n
 		done
 		if [ ! -f "hangover_$commitsha.patch" ]; then
-			curl -so "hangover_$commitsha.patch" --retry 5 "https://github.com/AndreRH/wine/commit/$commitsha.patch" &
+			{
+				curl -so "hangover_$commitsha.patch" --retry 5 "https://github.com/AndreRH/wine/commit/$commitsha.patch"
+				echo "Downloaded commit $commitsha"
+			} &
+			#dos2unix "$1/hangover_$commitsha.patch"
 		fi
-
-		echo "Downloaded commit $commitsha."
 	done
+	wait
 	cd $2
 }
 

@@ -1,14 +1,14 @@
 const https = require("https")
 
-//const FIRST_COMMIT = '629c2732e347ff5b2130fd7fae4b89bdb830a484'
-//const LAST_COMMIT  = 'fa6ddb204f4f924b4a63dcd2408d923881f01151'
-//const REPO = 'AndreRH/wine'
-//const EXTRA = ''
+const FIRST_COMMIT = '1d2434b06d2c5245651817e668f7309ad443a1d2'
+const LAST_COMMIT  = '0a79dc5cc596c1021644fee02b46657edb5d5f9c'
+const REPO = 'AndreRH/wine'
+const EXTRA = ''
 
-const FIRST_COMMIT = '3079dbd172eb6b38fa69411033b4ecea76eb17bf'
-const LAST_COMMIT  = '68033cf25e0ded85a2e21fd696dc305bdc458ca7'
-const REPO = 'AndreRH/FEX'
-const EXTRA = '&sha=68033cf25e0ded85a2e21fd696dc305bdc458ca7'
+//const FIRST_COMMIT = '3079dbd172eb6b38fa69411033b4ecea76eb17bf'
+//const LAST_COMMIT  = '68033cf25e0ded85a2e21fd696dc305bdc458ca7'
+//const REPO = 'AndreRH/FEX'
+//const EXTRA = '&sha=68033cf25e0ded85a2e21fd696dc305bdc458ca7'
 
 https.request(new URL(`https://api.github.com/repos/${REPO}/commits?per_page=300${EXTRA}`), {
     headers: {
@@ -28,6 +28,6 @@ https.request(new URL(`https://api.github.com/repos/${REPO}/commits?per_page=300
             if(inrange) incommits.push(e.sha)
             if(e.sha === FIRST_COMMIT) break;
         }
-        console.log(incommits.join(' '))
+        console.log(incommits.reverse().join(' '))
     })
 }).end()
