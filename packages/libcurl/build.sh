@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://curl.se/
 TERMUX_PKG_DESCRIPTION="Easy-to-use client-side URL transfer library"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="7.88.1"
+TERMUX_PKG_VERSION="8.3.0"
 TERMUX_PKG_SRCURL=https://github.com/curl/curl/releases/download/curl-${TERMUX_PKG_VERSION//./_}/curl-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=1dae31b2a7c1fe269de99c0c31bb488346aab3459b5ffca909d6938249ae415f
+TERMUX_PKG_SHA256=376d627767d6c4f05105ab6d497b0d9aba7111770dd9d995225478209c37ea63
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP="\d+.\d+.\d+"
 TERMUX_PKG_DEPENDS="libnghttp2, libssh2, openssl (>= 3.0.3), zlib"
@@ -25,6 +25,8 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --with-libssh2
 "
 
+# https://github.com/termux/termux-packages/issues/15889
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" ac_cv_func_getpwuid=yes"
 
 # Starting with version 7.62 curl started enabling http/2 by default.
 # Support for http/2 as added in version 1.4.8-8 of the apt package, so we

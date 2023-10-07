@@ -1,12 +1,11 @@
 TERMUX_PKG_HOMEPAGE=https://github.com/pyca/cryptography
 TERMUX_PKG_DESCRIPTION="Provides cryptographic recipes and primitives to Python developers"
-# Licenses: Apache-2.0, BSD 3-Clause, PSFL
-TERMUX_PKG_LICENSE="custom"
-TERMUX_PKG_LICENSE_FILE="LICENSE, LICENSE.APACHE, LICENSE.BSD, LICENSE.PSF"
+TERMUX_PKG_LICENSE="Apache-2.0, BSD 3-Clause"
+TERMUX_PKG_LICENSE_FILE="LICENSE, LICENSE.APACHE, LICENSE.BSD"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=39.0.1
+TERMUX_PKG_VERSION="41.0.4"
 TERMUX_PKG_SRCURL=https://github.com/pyca/cryptography/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=e9a4fe4d32e3161dccf9172086e1c2c96e49854fde5f9a220d40c84b9faa9b87
+TERMUX_PKG_SHA256=ca412f40a26f1bbe0c4d194ce02ce1d275f613aa7c2149f5912aee2cf5758b8a
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="openssl, python, python-pip"
 TERMUX_PKG_BUILD_IN_SRC=true
@@ -14,16 +13,10 @@ TERMUX_PKG_UPDATE_TAG_TYPE="newest-tag"
 TERMUX_PKG_PYTHON_COMMON_DEPS="wheel, cffi, setuptools-rust"
 TERMUX_PKG_PYTHON_TARGET_DEPS="'cffi>=1.12'"
 
-termux_step_post_get_source() {
-	echo "Applying openssl-libs.diff"
-	sed "s%@PYTHON_VERSION@%$TERMUX_PYTHON_VERSION%g" \
-		$TERMUX_PKG_BUILDER_DIR/openssl-libs.diff | patch --silent -p1
-}
-
 termux_step_configure() {
 	termux_setup_rust
 	export CARGO_BUILD_TARGET=${CARGO_TARGET_NAME}
-        export PYO3_CROSS_LIB_DIR=$TERMUX_PREFIX/lib
+	export PYO3_CROSS_LIB_DIR=$TERMUX_PREFIX/lib
 }
 
 termux_step_create_debscripts() {

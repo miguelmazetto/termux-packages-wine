@@ -1,6 +1,6 @@
 termux_setup_meson() {
 	termux_setup_ninja
-	local MESON_VERSION=1.0.0
+	local MESON_VERSION=1.1.0
 	local MESON_FOLDER
 
 	if [ "${TERMUX_PACKAGES_OFFLINE-false}" = "true" ]; then
@@ -16,7 +16,7 @@ termux_setup_meson() {
 		termux_download \
 			"https://github.com/mesonbuild/meson/releases/download/$MESON_VERSION/meson-$MESON_VERSION.tar.gz" \
 			"$MESON_TAR_FILE" \
-			aa50a4ba4557c25e7d48446abfde857957dcdf58385fffbe670ba0e8efacce05
+			d9616c44cd6c53689ff8f05fc6958a693f2e17c3472a8daf83cee55dabff829f
 		tar xf "$MESON_TAR_FILE" -C "$TERMUX_PKG_TMPDIR"
 		shopt -s nullglob
 		local f
@@ -107,5 +107,9 @@ termux_setup_meson() {
 	echo "cpu_family = '$MESON_CPU_FAMILY'" >> $TERMUX_MESON_CROSSFILE
 	echo "cpu = '$MESON_CPU'" >> $TERMUX_MESON_CROSSFILE
 	echo "endian = 'little'" >> $TERMUX_MESON_CROSSFILE
-	echo "system = 'android'" >> $TERMUX_MESON_CROSSFILE
+ 	if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ]; then
+		echo "system = 'android'" >> $TERMUX_MESON_CROSSFILE
+  	elif [ "$TERMUX_PACKAGE_LIBRARY" = "glibc" ]; then
+		echo "system = 'linux'" >> $TERMUX_MESON_CROSSFILE
+     	fi
 }

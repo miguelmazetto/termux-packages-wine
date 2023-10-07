@@ -3,12 +3,13 @@ TERMUX_PKG_DESCRIPTION="An open-source implementation of the OpenGL specificatio
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="docs/license.rst"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=23.0.0
+TERMUX_PKG_VERSION="23.2.1"
 TERMUX_PKG_SRCURL=https://archive.mesa3d.org/mesa-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=01f3cff3763f09e0adabcb8011e4aebc6ad48f6a4dd4bae904fe918707d253e4
-TERMUX_PKG_DEPENDS="libandroid-shmem, libc++, libdrm, libexpat, libglvnd, libx11, libxext, libxfixes, libxshmfence, libxxf86vm, ncurses, zlib, zstd"
+TERMUX_PKG_SHA256=64de0616fc2d801f929ab1ac2a4f16b3e2783c4309a724c8a259b20df8bbc1cc
+TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_DEPENDS="libandroid-shmem, libc++, libdrm, libglvnd, libwayland, libx11, libxext, libxfixes, libxshmfence, libxxf86vm, ncurses, vulkan-loader, zlib, zstd"
 TERMUX_PKG_SUGGESTS="mesa-dev"
-TERMUX_PKG_BUILD_DEPENDS="libllvm-static, libxrandr, llvm, llvm-tools, mlir, xorgproto"
+TERMUX_PKG_BUILD_DEPENDS="libllvm-static, libwayland-protocols, libxrandr, llvm, llvm-tools, mlir, xorgproto"
 TERMUX_PKG_CONFLICTS="libmesa, ndk-sysroot (<= 25b)"
 TERMUX_PKG_REPLACES="libmesa"
 
@@ -25,18 +26,12 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dglx=dri
 -Dllvm=enabled
 -Dshared-llvm=disabled
--Dplatforms=x11
--Dgallium-drivers=swrast
--Dvulkan-drivers=
+-Dplatforms=x11,wayland
+-Dgallium-drivers=swrast,virgl,zink
 -Dosmesa=true
 -Dglvnd=true
+-Dxmlconfig=disabled
 "
-
-termux_step_post_get_source() {
-	# https://gitlab.freedesktop.org/mesa/mesa/-/issues/6505
-	# patch(1) cannot be used due to misapplication
-	sed -i "s/^llvm_modules = \[/\0'passes', /" meson.build
-}
 
 termux_step_pre_configure() {
 	termux_setup_cmake
@@ -51,8 +46,22 @@ termux_step_pre_configure() {
 			$TERMUX_PKG_BUILDER_DIR/cmake-wrapper.in \
 			> $_WRAPPER_BIN/cmake
 		chmod 0700 $_WRAPPER_BIN/cmake
+		sed "s|^export PKG_CONFIG_LIBDIR=|export PKG_CONFIG_LIBDIR=${TERMUX_PREFIX}/opt/libwayland/cross/lib/x86_64-linux-gnu/pkgconfig:|" \
+			"${TERMUX_STANDALONE_TOOLCHAIN}/bin/pkg-config" \
+			> "${_WRAPPER_BIN}/pkg-config"
+		chmod +x "${_WRAPPER_BIN}/pkg-config"
+		export PKG_CONFIG="${_WRAPPER_BIN}/pkg-config"
 	fi
 	export PATH=$_WRAPPER_BIN:$PATH
+
+	if [ $TERMUX_ARCH = "arm" ] || [ $TERMUX_ARCH = "aarch64" ]; then
+		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dvulkan-drivers=swrast,freedreno"
+		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dfreedreno-kmds=msm,kgsl"
+	elif [ $TERMUX_ARCH = "i686" ] || [ $TERMUX_ARCH = "x86_64" ]; then
+		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dvulkan-drivers=swrast"
+	else
+		termux_error_exit "Invalid arch: $TERMUX_ARCH"
+	fi
 }
 
 termux_step_post_configure() {

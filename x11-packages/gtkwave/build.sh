@@ -1,11 +1,12 @@
-TERMUX_PKG_HOMEPAGE=http://gtkwave.sourceforge.net/
+TERMUX_PKG_HOMEPAGE=https://gtkwave.sourceforge.net/
 TERMUX_PKG_DESCRIPTION="A wave viewer which reads LXT, LXT2, VZT, GHW and VCD/EVCD files"
 TERMUX_PKG_LICENSE="GPL-2.0, MIT"
 TERMUX_PKG_LICENSE_FILE="COPYING, LICENSE.TXT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=3.3.114
+TERMUX_PKG_VERSION="3.3.117"
 TERMUX_PKG_SRCURL=https://downloads.sourceforge.net/gtkwave/gtkwave-${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=78df39fc2b3fdddd95f0a915043aa04215deb4de4ed9e16d195cc79fa433074c
-TERMUX_PKG_DEPENDS="glib, gtk2, libandroid-shmem, libbz2, libc++, liblzma, pango, zlib"
+TERMUX_PKG_SHA256=55520fc308244c5dc99d5a3f42f5e782eb8e6a9e81cece5c84ea3f11875bff13
+TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_DEPENDS="gdk-pixbuf, glib, gtk2, libandroid-shmem, libbz2, libc++, liblzma, pango, zlib"
 TERMUX_PKG_RECOMMENDS="desktop-file-utils"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--disable-tcl --disable-mime-update"

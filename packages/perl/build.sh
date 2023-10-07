@@ -9,13 +9,14 @@ TERMUX_PKG_MAINTAINER="@termux"
 # - libregexp-assemble-perl
 # - psutils
 # - subversion
-TERMUX_PKG_VERSION=(5.36.0
-                    1.4)
-TERMUX_PKG_REVISION=1
-TERMUX_PKG_SHA256=(e26085af8ac396f62add8a533c3a0ea8c8497d836f0689347ac5abd7b7a4e00a
-                   be9d9f9f7148edff7a2f9695ba3cb7e3975eff6b25a9a81dd311725fd757aa91)
+TERMUX_PKG_VERSION=(5.38.0
+                    80300df89ff373acea891148ff67170198686c75)
+TERMUX_PKG_REVISION=2
+TERMUX_PKG_SHA256=(213ef58089d2f2c972ea353517dc60ec3656f050dcc027666e118b508423e517
+                   2313fa43668cffa9a4ea06d754f2bacfcb8f2602512814f306a49ca426222785)
 TERMUX_PKG_SRCURL=(http://www.cpan.org/src/5.0/perl-${TERMUX_PKG_VERSION}.tar.gz
-		   https://github.com/arsv/perl-cross/releases/download/${TERMUX_PKG_VERSION[1]}/perl-cross-${TERMUX_PKG_VERSION[1]}.tar.gz)
+		   https://github.com/arsv/perl-cross/archive/${TERMUX_PKG_VERSION[1]}.tar.gz)
+#		   https://github.com/arsv/perl-cross/releases/download/${TERMUX_PKG_VERSION[1]}/perl-cross-${TERMUX_PKG_VERSION[1]}.tar.gz)
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_MAKE_PROCESSES=1
 TERMUX_PKG_RM_AFTER_INSTALL="bin/perl${TERMUX_PKG_VERSION}"
@@ -73,6 +74,9 @@ termux_step_post_make_install() {
 	cd $TERMUX_PREFIX/share/man/man1
 	rm perlbug.1
 	ln -s perlthanks.1 perlbug.1
+	cd $TERMUX_PREFIX/bin
+	rm perlbug
+	ln -s perlthanks perlbug
 
 	cd $TERMUX_PREFIX/lib
 	ln -f -s perl5/${TERMUX_PKG_VERSION}/${TERMUX_ARCH}-android/CORE/libperl.so libperl.so

@@ -195,7 +195,7 @@ lint_package() {
 
 		echo -n "TERMUX_PKG_VERSION: "
 		if [ -n "$TERMUX_PKG_VERSION" ]; then
-			if grep -qiP '^([0-9]+\:)?[0-9][0-9a-z+\-\.]*$' <<< "$TERMUX_PKG_VERSION"; then
+			if grep -qiP '^([0-9]+\:)?[0-9][0-9a-z+\-\.\~]*$' <<< "${TERMUX_PKG_VERSION}"; then
 				echo "PASS"
 			else
 				echo "INVALID (contains characters that are not allowed)"
@@ -481,7 +481,7 @@ linter_main() {
 }
 
 if [ $# -eq 0 ]; then
-	for repo_dir in $(jq --raw-output 'keys | .[]' $REPO_DIR/repo.json); do
+	for repo_dir in $(jq --raw-output 'del(.pkg_format) | keys | .[]' $REPO_DIR/repo.json); do
 		linter_main $repo_dir/*/build.sh
 	done || exit 1
 else

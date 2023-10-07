@@ -58,6 +58,7 @@ PACKAGES+=" python3-sphinx-rtd-theme"
 PACKAGES+=" python3-sphinxcontrib.qthelp"
 PACKAGES+=" scdoc"
 PACKAGES+=" texinfo"
+PACKAGES+=" txt2man"
 PACKAGES+=" xmlto"
 PACKAGES+=" xmltoman"
 
@@ -92,13 +93,11 @@ PACKAGES+=" gegl"
 # Needed by package libidn2.
 PACKAGES+=" gengetopt"
 
-# Needed by package proxmark3-git.
-PACKAGES+=" swig"
-
 # Needed by package dbus-glib.
 PACKAGES+=" libdbus-1-dev"
 
 # Needed by package below.
+PACKAGES+=" clang-15"
 PACKAGES+=" libelf-dev"
 
 # Needed by package ghostscript.
@@ -135,20 +134,23 @@ PACKAGES+=" ruby"
 
 # Needed by host build of package nodejs.
 PACKAGES+=" libc-ares-dev"
+PACKAGES+=" libc-ares-dev:i386"
 PACKAGES+=" libicu-dev"
+PACKAGES+=" libicu-dev:i386"
 
 # Needed by php.
 PACKAGES+=" re2c"
 
 # Needed by composer.
 PACKAGES+=" php"
+PACKAGES+=" php-xml"
 PACKAGES+=" composer"
 
 # Needed by package rust.
 PACKAGES+=" libssl-dev" # Needed to build Rust
-PACKAGES+=" llvm-13-dev"
-PACKAGES+=" llvm-13-tools"
-PACKAGES+=" clang-13"
+PACKAGES+=" llvm-15-dev"
+PACKAGES+=" llvm-15-tools"
+PACKAGES+=" clang-15"
 
 # Needed for package smalltalk.
 PACKAGES+=" libsigsegv-dev"
@@ -172,14 +174,14 @@ PACKAGES+=" luajit"
 # Needed by libduktape
 PACKAGES+=" bc"
 
-# Java.
-PACKAGES+=" openjdk-8-jdk openjdk-18-jdk"
-
 # needed by ovmf
 PACKAGES+=" libarchive-tools"
 
 # Needed by cavif-rs
 PACKAGES+=" nasm"
+
+# Needed by debianutils
+PACKAGES+=" po4a"
 
 # Needed by dgsh
 PACKAGES+=" rsync"
@@ -222,6 +224,7 @@ PACKAGES+=" python-setuptools"
 PACKAGES+=" python3-xcbgen"
 PACKAGES+=" sassc"
 PACKAGES+=" texlive-extra-utils"
+PACKAGES+=" unifdef"
 PACKAGES+=" wayland-scanner++"
 PACKAGES+=" xfce4-dev-tools"
 PACKAGES+=" xfonts-utils"
@@ -244,6 +247,9 @@ PACKAGES+=" triehash"
 
 # Needed by aspell dictionaries.
 PACKAGES+=" aspell"
+
+# Needed by package gdb.
+PACKAGES+=" guile-3.0-dev"
 
 # Needed by package kphp.
 PACKAGES+=" python3-jsonschema"
@@ -287,6 +293,15 @@ PACKAGES+=" libwebp7 libwebp7:i386 libwebp-dev"
 PACKAGES+=" libwebpdemux2 libwebpdemux2:i386"
 PACKAGES+=" libwebpmux3 libwebpmux3:i386"
 
+# Required by CGCT
+PACKAGES+=" libdebuginfod-dev"
+
+# Needed to set up CGCT and also to set up other packages
+PACKAGES+=" patchelf"
+
+# Needed by lldb for python integration
+PACKAGES+=" swig"
+
 # Do not require sudo if already running as root.
 if [ "$(id -u)" = "0" ]; then
 	SUDO=""
@@ -298,6 +313,7 @@ fi
 $SUDO dpkg --add-architecture i386
 # Add ppa repo to be able to get openjdk-17 on ubuntu 22.04
 $SUDO cp $(dirname "$(realpath "$0")")/openjdk-r-ppa.gpg /etc/apt/trusted.gpg.d/
+$SUDO chmod a+r /etc/apt/trusted.gpg.d/openjdk-r-ppa.gpg
 echo "deb https://ppa.launchpadcontent.net/openjdk-r/ppa/ubuntu/ jammy main" | $SUDO tee /etc/apt/sources.list.d/openjdk-r-ubuntu-ppa-jammy.list > /dev/null
 $SUDO apt-get -yq update
 

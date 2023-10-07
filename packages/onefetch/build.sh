@@ -2,9 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://github.com/o2sh/onefetch
 TERMUX_PKG_DESCRIPTION="A command-line Git information tool written in Rust"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@ELWAER-M"
-TERMUX_PKG_VERSION="2.16.0"
+TERMUX_PKG_VERSION="2.18.1"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/o2sh/onefetch/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=948abb476a1310ab9393fcce10cffabcedfa12c2cf7be238472edafe13753222
+TERMUX_PKG_SHA256=7b0f03e9d2383ac32283cfb9ec09d10c8789a298969c8b7d45fa0168bd909140
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libgit2"
 TERMUX_PKG_BUILD_IN_SRC=true
@@ -18,16 +19,21 @@ termux_step_pre_configure() {
 	: "${CARGO_HOME:=$HOME/.cargo}"
 	export CARGO_HOME
 
-	rm -rf "${CARGO_HOME}"/registry/src/github.com-*/git-config*
-	rm -rf $CARGO_HOME/registry/src/github.com-*/rustix-*
+	rm -rf "${CARGO_HOME}"/registry/src/*/git-config*
+	rm -rf $CARGO_HOME/registry/src/*/rustix-*
 	cargo fetch --target "${CARGO_TARGET_NAME}"
 
-	for d in $CARGO_HOME/registry/src/github.com-*/rustix-*; do
+	for d in $CARGO_HOME/registry/src/*/rustix-*; do
 		patch --silent -p1 -d ${d} < $TERMUX_PKG_BUILDER_DIR/0001-upstream-fix-libc-removing-unsafe-on-makedev.diff || :
 	done
 
-	for d in $CARGO_HOME/registry/src/github.com-*/git-config*; do
+	for d in $CARGO_HOME/registry/src/*/git-config*; do
 		patch --silent -p1 -d ${d} < $TERMUX_PKG_BUILDER_DIR/0002-rust-git-config-path.diff || :
+	done
+
+	local f
+	for f in $CARGO_HOME/registry/src/*/libgit2-sys-*/build.rs; do
+		sed -i -E 's/\.range_version\(([^)]*)\.\.[^)]*\)/.atleast_version(\1)/g' "${f}"
 	done
 }
 

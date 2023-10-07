@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://grafana.com/
 TERMUX_PKG_DESCRIPTION="The open-source platform for monitoring and observability"
 TERMUX_PKG_LICENSE="AGPL-V3"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=8.5.15
+TERMUX_PKG_VERSION=8.5.27
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=git+https://github.com/grafana/grafana
 TERMUX_PKG_BUILD_DEPENDS="yarn"
@@ -35,6 +35,7 @@ termux_step_pre_configure() {
 	export PATH=$bin:$PATH
 
 	export NODE_OPTIONS=--max-old-space-size=6000
+	NODE_OPTIONS+=" --openssl-legacy-provider"
 
 	yarn set version 3.2.4
 }
