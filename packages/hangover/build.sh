@@ -6,10 +6,10 @@ LICENSE
 LICENSE.OLD
 COPYING.LIB"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=8.3
+TERMUX_PKG_VERSION=8.15
 TERMUX_PKG_SRCURL=https://dl.winehq.org/wine/source/8.x/wine-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=410269000292c3bfadd2561fdde06d9bcb2bc958b49b03e963f14177a27631f0
-TERMUX_PKG_DEPENDS="freetype, xwayland, cups, libdrm, libgmp, openldap, sdl2"
+TERMUX_PKG_SHA256=ed8fae61784bca6475accc78eff26a9ec6b08001a7ae1698d52e25f9c2d422da
+TERMUX_PKG_DEPENDS="freetype, xwayland, cups, libdrm, libgmp, openldap, sdl2, libandroid-shmem, libc++"
 TERMUX_PKG_BUILD_DEPENDS="mesa-dev"
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_HOSTBUILD=true
@@ -56,7 +56,7 @@ _setup_llvm_mingw_toolchain() {
 	export PATH="$PATH:$_extract_path/bin"
 }
 
-HANGOVER_COMMITS=(82ba597dd51df7492b8660751ce44d180a4c6c0e 8cea43858807ee327d0207633f53423c0f2ff85a 6e4bad080e609d6a67b5d56c53595136b738ce72 3dc78463cb5a162503fca680c076e17cbd951767 f01cfef6c37e5e2750f7525c75cee3aaa0c92559 0f799e0791d6cdd1502f9734a8a677339e3fcef9 e59cf11af767ad462d3727e72fb3f94d57803dd7 ec6362c6096e5a38879926c625d94559a783c7dc 7c5e0292d6c1bc55e76cb2ab7f9ed48dac8c438f 024decb450d080f165f100e3f9a5aeaa21f77e7a 910d34d43687d3fe88c036f0aac758febba8d264 d3ae82a6a35284694f410d448ce4cf056d6b1210 3f85d5db1c828130a43f79f2085db995a2a9b1e2 c69e054db64c2a305872f5bbef6118b19e3f0cc3 e2db337895325a064b7a5ba7bdec7c657763c5ba 4490a1d37b05eeb2fe57c07a21e2b3f5239f161a 983ce3010a7a1f88221cca9d1d8adde89496b083 5773c018e341dbe1d76d776029bac8d3ca4e354c 8cd8787ab3237ba4da88904015485abca2627eeb d3ef45b791be9a680e08062df2acde93092dc65d 983b9a803e2d62b26c1224ba235f3e2e8850493a d7632807a6b96de69b54408f8ccf2a20a997c5be 39c8d95fb61de9f463353fcbaffc0adadb4a0add f019c96b1e1124fd3686d9d7af0ec8f33bcebd92 86d0c5964c8ef7d8d1b084cf808f1dbb1f654cae 47e0962ffa20151cc0be1874c7919c1250af631b 2205ba5f02698ca08f9e447e3a6b61e50a7fde73 cf65b19290602992492de8d08b8a1afcde4ca330 4dc72cbfdaee0edbc78a45f3f3c1c52d90a5b22c aee404a566559fdf60477f6d17f331bf75b944e4 7e52e2b943941988b3f48a8c8ce2e3f1fda7bc73)
+HANGOVER_COMMITS=(fa6ddb204f4f924b4a63dcd2408d923881f01151 7924672109834aa59c9675cd78a80dbdc94b30e6 f3421d1f581a4a0dc854f62521d982c506e7427c a2b0912180087df06a45512f82d5e14457b7bbe3 1dd6de6acd6564e3a16f28f92cdd08d84848745d 1f07b7e8f39d2eac8013374481ea80ace74fd608 bfd32fede3ae6de9a7a4bf80715c462f3fa455f0 2ee22db416b2ee0dd78b44b05b1c137f510bfc87 f7f2e43509262804e6dbbc474b63de819bc2bd3e daa8fca4ab3e4f16f632b0e52454cccaf89babbf 7c2c7ffa34bbce7ec3e564891ba5986bb3e4d120 af59fd8eb16859f5b7c38786ca56ac4e76cb0e2f 4adb71e5e0de9daae853cdc4b758454ad30a95d2 80e923c50c139529a531c5be659f09d5bd8b57f1 1eb121c273ef389d41034be977e173507cc8c006 c3045bc09e46ec4abe070c19dcbd1e94a6d661df 5af013584dceef5366daeaa7c4b4ef55408b4961 629c2732e347ff5b2130fd7fae4b89bdb830a484)
 _download_commits() {
 	cd $1
 	local num_jobs="\j"
@@ -101,6 +101,23 @@ _setup_qemu(){
 	cd $1
 }
 
+_setup_fex(){
+	local _url="https://github.com/AndreRH/FEX/archive/68033cf25e0ded85a2e21fd696dc305bdc458ca7.zip"
+	local _path="fex-2308.zip"
+	termux_download "$_url" "$_path" "9b7435729bd2ff9ce4636a924dad25e33a848e4cd4cc0aa89dcb803737b41189"
+
+	rm -rf "$TERMUX_PKG_CACHEDIR/fex-tmp"
+	rm -rf "$TERMUX_PKG_SRCDIR/fex"
+	mkdir -p "$TERMUX_PKG_CACHEDIR/fex-tmp"
+
+	unzip "$_path" -d "$TERMUX_PKG_CACHEDIR/fex-tmp"
+
+	mv -f "$TERMUX_PKG_CACHEDIR/fex-tmp" "$TERMUX_PKG_SRCDIR/fex"
+	cd "$TERMUX_PKG_SRCDIR/fex"
+	find "$PKG_SCRIPTDIR/fex" -type f -name '*.patch' -print0 | sort -z | xargs -t -0 -n 1 patch -p1 -i
+	cd $1
+}
+
 termux_step_post_get_source() {
 	_download_commits $TERMUX_PKG_CACHEDIR $PWD
 	_apply_commits $TERMUX_PKG_CACHEDIR $PWD
@@ -118,6 +135,11 @@ termux_step_host_build() {
 }
 
 termux_step_pre_configure() {
+<<<<<<< HEAD
+=======
+	#_setup_qemu $PWD
+	_setup_fex $PWD
+>>>>>>> e56a926ef (hangover: Rebase to Wine 8.15, Add FEX)
 
 	# Fix dlltool & windres
 	ln -sf "$(which llvm-ar)" "$(dirname "$(which llvm-ar)")/llvm-dlltool"
@@ -224,8 +246,25 @@ _configure_qemu(){
 	read -p "build done!.."
 }
 
+_configure_fex() {
+	termux_setup_cmake
+
+	mkdir -p "$TERMUX_PKG_BUILDDIR/fex"
+	cd "$TERMUX_PKG_BUILDDIR/fex"
+
+	cmake \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DENABLE_LTO=True \
+		-DENABLE_LLD=True \
+		-DBUILD_TESTS=False \
+		-DENABLE_ASSERTIONS=False \
+		-DENABLE_TERMUX_BUILD=True \
+		"$TERMUX_PKG_SRCDIR/fex"
+}
+
 termux_step_configure() {
-	_configure_qemu
+	#_configure_qemu
+	_configure_fex
 
 	cd "$TERMUX_PKG_BUILDDIR"
 	#_setup_llvm_mingw_toolchain
@@ -246,10 +285,14 @@ termux_step_make() {
 
 	cd "$TERMUX_PKG_BUILDDIR/qemu"
 	make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD
+
+	cd "$TERMUX_PKG_BUILDDIR/fex"
+	make -j $TERMUX_MAKE_PROCESSES $QUIET_BUILD FEXCore_shared
 }
 
 termux_step_make_install() {
 	make -j "$TERMUX_MAKE_PROCESSES" install-lib
 	mkdir -p "$TERMUX_PREFIX/opt/hangover/lib"
 	cp -f qemu/libqemu-i386.so "$TERMUX_PREFIX/opt/hangover/lib"
+	cp -f fex/External/FEXCore/Source/libFEXCore.so "$TERMUX_PREFIX/opt/hangover/lib"
 }
