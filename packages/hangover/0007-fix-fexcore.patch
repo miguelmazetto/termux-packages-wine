@@ -1,0 +1,15 @@
+--- a/dlls/fexcore/unixlib.c
++++ b/dlls/fexcore/unixlib.c
+@@ -97,10 +97,11 @@
+     return 0;
+ }
+ 
+-static void invalidate_code_range ( void *args )
++static NTSTATUS invalidate_code_range ( void *args )
+ {
+     const struct invalidate_code_range_params *params = args;
+     phangover_fex_invalidate_code_range(params->base, params->length);
++    return 0;
+ }
+ 
+ const unixlib_entry_t __wine_unix_call_funcs[] =

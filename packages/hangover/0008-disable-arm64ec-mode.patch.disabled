@@ -1,0 +1,17 @@
+--- a/dlls/ntdll/unix/env.c
++++ b/dlls/ntdll/unix/env.c
+@@ -1864,2 +1864,3 @@
+     case IMAGE_FILE_MACHINE_ARMNT:
++    case IMAGE_FILE_MACHINE_AMD64:
+         NtCurrentTeb()->WowTebOffset = teb_offset;
+@@ -1870,6 +1871,6 @@
+         break;
+-    case IMAGE_FILE_MACHINE_AMD64:
+-        if (main_image_info.Machine == current_machine) break;
+-        ERR( "starting %s in experimental ARM64EC mode\n", debugstr_us(&params->ImagePathName) );
+-        break;
++    //case IMAGE_FILE_MACHINE_AMD64:
++    //    if (main_image_info.Machine == current_machine) break;
++    //    ERR( "starting %s in experimental ARM64EC mode\n", debugstr_us(&params->ImagePathName) );
++    //    break;
+     }

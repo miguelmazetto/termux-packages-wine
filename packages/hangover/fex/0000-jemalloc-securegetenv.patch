@@ -1,0 +1,7 @@
+--- a/External/jemalloc/src/jemalloc.c
++++ b/External/jemalloc/src/jemalloc.c
+@@ -703,3 +703,3 @@
+ jemalloc_secure_getenv(const char *name) {
+-#ifdef JEMALLOC_HAVE_SECURE_GETENV
++#if 0
+ 	return secure_getenv(name);

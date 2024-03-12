@@ -1,0 +1,35 @@
+--- a/dlls/kernelbase/process.c
++++ b/dlls/kernelbase/process.c
+@@ -1021,6 +1021,17 @@
+  */
+ BOOL WINAPI DECLSPEC_HOTPATCH IsWow64Process2( HANDLE process, USHORT *machine, USHORT *native_machine )
+ {
++    USHORT curmachine, curnative_machine;
++
++    // Current asking process is wow64
++    if(set_ntstatus( RtlWow64GetProcessMachines( GetCurrentProcess(), &curmachine, &curnative_machine )) &&
++        curmachine != IMAGE_FILE_MACHINE_UNKNOWN)
++    {
++        *machine = IMAGE_FILE_MACHINE_UNKNOWN;
++        if(native_machine)
++            *native_machine = curmachine;
++    }
++
+     return set_ntstatus( RtlWow64GetProcessMachines( process, machine, native_machine ));
+ }
+ 
+@@ -1032,6 +1043,14 @@
+ {
+     ULONG_PTR pbi;
+     NTSTATUS status;
++
++    status = NtQueryInformationProcess( GetCurrentProcess(), ProcessWow64Information, &pbi, sizeof(pbi), NULL );
++
++    // Current asking process is wow64
++    if (!status && !!pbi){
++        *wow64 = FALSE;
++        return TRUE;
++    }
+ 
+     status = NtQueryInformationProcess( process, ProcessWow64Information, &pbi, sizeof(pbi), NULL );
+     if (!status) *wow64 = !!pbi;

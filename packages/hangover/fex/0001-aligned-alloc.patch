@@ -1,0 +1,28 @@
+--- a/FEXCore/include/FEXCore/Utils/AllocatorHooks.h
++++ b/FEXCore/include/FEXCore/Utils/AllocatorHooks.h
+@@ -38,2 +38,25 @@
+ 
++#ifdef __ANDROID__
++#if __ANDROID_API__ < 28
++#include <stdalign.h>
++#include <stdlib.h>
++#include <errno.h>
++#include <malloc.h>
++
++inline void *aligned_alloc(size_t align, size_t size)
++{
++    /* align must be a power of 2 */
++    /* size must be a multiple of align */
++    if ((align & (align - 1)) || (size & (align - 1)))
++    {
++        errno = EINVAL;
++        return NULL;
++    }
++
++    return memalign(align, size);
++}
++
++#endif
++#endif
++
+ namespace FEXCore::Allocator {

@@ -1,0 +1,11 @@
+--- a/FEXCore/Source/Interface/Core/X86Tables/X86Tables.h
++++ b/FEXCore/Source/Interface/Core/X86Tables/X86Tables.h
+@@ -10,6 +10,8 @@
+ 
+ #include <FEXCore/Utils/LogManager.h>
+ 
++#include <compare>
++
+ namespace FEXCore::IR {
+ ///< Forward declaration of OpDispatchBuilder
+ class OpDispatchBuilder;

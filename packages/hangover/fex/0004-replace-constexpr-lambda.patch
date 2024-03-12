@@ -1,0 +1,36 @@
+--- a/FEXCore/Source/Interface/Core/ArchHelpers/Arm64Emitter.cpp
++++ b/FEXCore/Source/Interface/Core/ArchHelpers/Arm64Emitter.cpp
+@@ -127,15 +127,7 @@
+     // None.
+   };
+ 
+-  constexpr uint32_t PreserveAll_SRAFPRMask = {
+-    []() -> uint32_t {
+-      uint32_t Mask{};
+-      for (auto Reg : PreserveAll_SRAFPR) {
+-        Mask |= (1U << Reg.Idx());
+-      }
+-      return Mask;
+-    }()
+-  };
++  constexpr uint32_t PreserveAll_SRAFPRMask = 0;
+ 
+   // Dynamic FPRs
+   // - v0-v7
+@@ -283,15 +275,7 @@
+     // None.
+   };
+ 
+-  constexpr uint32_t PreserveAll_SRAFPRMask = {
+-    []() -> uint32_t {
+-      uint32_t Mask{};
+-      for (auto Reg : PreserveAll_SRAFPR) {
+-        Mask |= (1U << Reg.Idx());
+-      }
+-      return Mask;
+-    }()
+-  };
++  constexpr uint32_t PreserveAll_SRAFPRMask = 0;
+ 
+   // Dynamic FPRs
+   // - v0-v7

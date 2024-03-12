@@ -1,0 +1,33 @@
+--- a/dlls/xtajit/unixlib.c
++++ b/dlls/xtajit/unixlib.c
+@@ -80,7 +80,7 @@
+ 
+ static NTSTATUS attach( void *args )
+ {
+-    static char default_lib[] = "/opt/libqemu-i386.so";
++    static char default_lib[] = "@TERMUX_PREFIX@/opt/hangover/lib/libqemu-i386.so";
+     char *holib, *qemu_log;
+     int log_mask;
+ 
+--- a/dlls/fexcore/unixlib.c
++++ b/dlls/fexcore/unixlib.c
+@@ -44,7 +44,7 @@
+ 
+ static NTSTATUS attach( void *args )
+ {
+-    static char default_lib[] = "/opt/libFEXCore.so";
++    static char default_lib[] = "@TERMUX_PREFIX@/opt/hangover/lib/libFEXCore.so";
+     char *holib;
+ 
+     MESSAGE("starting FEX based fexcore.dll\n");
+--- a/dlls/wowarmhw/unixlib.c
++++ b/dlls/wowarmhw/unixlib.c
+@@ -75,7 +75,7 @@
+ 
+ static NTSTATUS attach( void *args )
+ {
+-    static char default_lib[] = "/opt/libqemu-arm.so";
++    static char default_lib[] = "@TERMUX_PREFIX@/opt/hangover/lib/libqemu-arm.so";
+     char *holib, *qemu_log;
+     int log_mask;
+ 

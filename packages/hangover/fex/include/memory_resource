@@ -1,0 +1,273 @@
+#pragma once
+#ifdef __ANDROID__
+#include <experimental/memory_resource>
+#include <experimental/list>
+#include <experimental/map>
+#include <memory>
+#include <assert.h>
+
+#define bit_CONFIG_SELECT_BIT bit_BIT_NONSTD
+#include "nonstd-bit.hpp"
+
+namespace std {
+	namespace pmr {
+		using namespace std::experimental::pmr;
+
+		template <class T>
+		using old_polymorphic_allocator = std::experimental::pmr::polymorphic_allocator<T>;
+
+		template <class T>
+		class polymorphic_allocator_cpp17 : public old_polymorphic_allocator<T>
+		{
+			using old_polymorphic_allocator<T>::old_polymorphic_allocator;
+
+		public:
+			template< class U, class... CtorArgs >
+			inline U* new_object( CtorArgs&&... ctor_args ) {
+				U* p = (U*)this->allocate(sizeof(U));
+				this->construct(p, std::forward<CtorArgs>(ctor_args)...);
+				return p;
+			}
+			template <class OT>
+			operator old_polymorphic_allocator<OT>() const { return *(const old_polymorphic_allocator<OT>*)this; }
+		};
+
+		constexpr size_t aligned_ceil(size_t n, size_t alignment)
+		{
+		  return (n + alignment - 1) & ~(alignment - 1);
+		}
+
+		template <class T>
+		using polymorphic_allocator = polymorphic_allocator_cpp17<T>;
+
+		class monotonic_buffer_resource : public memory_resource
+		{
+			template<unsigned N>
+			struct aligned_size
+			{
+			  // N must be a power of two
+			  static_assert( std::__popcount(N) == 1 );
+
+			  static constexpr size_t _S_align_mask = N - 1;
+			  static constexpr size_t _S_size_mask = ~_S_align_mask;
+
+			  constexpr
+			  aligned_size(size_t sz, size_t align) noexcept
+			  : value(sz | (nonstd::bit::bit_width(align) - 1u))
+			  {
+			    assert(size() == sz); // sz must be a multiple of N
+			  }
+
+			  constexpr size_t
+			  size() const noexcept
+			  { return value & _S_size_mask; }
+
+			  constexpr size_t
+			  alignment() const noexcept
+			  { return size_t(1) << (value & _S_align_mask); }
+
+			  size_t value; // size | log2(alignment)
+			};
+
+			public:
+			  explicit
+			  monotonic_buffer_resource(memory_resource* __upstream) noexcept
+			  __attribute__((__nonnull__))
+			  : _M_upstream(__upstream)
+			  { }
+
+			  monotonic_buffer_resource(size_t __initial_size,
+						      memory_resource* __upstream) noexcept
+			  __attribute__((__nonnull__))
+			  : _M_next_bufsiz(__initial_size),
+			    _M_upstream(__upstream)
+			  { }
+
+			  monotonic_buffer_resource(void* __buffer, size_t __buffer_size,
+						      memory_resource* __upstream) noexcept
+			  __attribute__((__nonnull__(4)))
+			  : _M_current_buf(__buffer), _M_avail(__buffer_size),
+			    _M_next_bufsiz(_S_next_bufsize(__buffer_size)),
+			    _M_upstream(__upstream),
+			    _M_orig_buf(__buffer), _M_orig_size(__buffer_size)
+			  { }
+
+			  monotonic_buffer_resource() noexcept
+			  : monotonic_buffer_resource(get_default_resource())
+			  { }
+
+			  explicit
+			  monotonic_buffer_resource(size_t __initial_size) noexcept
+			  : monotonic_buffer_resource(__initial_size, get_default_resource())
+			  { }
+
+			  monotonic_buffer_resource(void* __buffer, size_t __buffer_size) noexcept
+			  : monotonic_buffer_resource(__buffer, __buffer_size, get_default_resource())
+			  { }
+
+			  monotonic_buffer_resource(const monotonic_buffer_resource&) = delete;
+
+			  inline ~monotonic_buffer_resource() { release(); };
+
+			  monotonic_buffer_resource&
+			  operator=(const monotonic_buffer_resource&) = delete;
+
+			  void
+			  release() noexcept
+			  {
+			    if (_M_head)
+				_M_release_buffers();
+
+			    // reset to initial state at contruction:
+			    if ((_M_current_buf = _M_orig_buf))
+				{
+				  _M_avail = _M_orig_size;
+				  _M_next_bufsiz = _S_next_bufsize(_M_orig_size);
+				}
+			    else
+				{
+				  _M_avail = 0;
+				  _M_next_bufsiz = _M_orig_size;
+				}
+			  }
+
+			  memory_resource*
+			  upstream_resource() const noexcept
+			  __attribute__((__returns_nonnull__))
+			  { return _M_upstream; }
+
+			protected:
+			  void*
+			  do_allocate(size_t __bytes, size_t __alignment) override
+			  {
+			    if (__builtin_expect(__bytes == 0, false))
+				__bytes = 1; // Ensures we don't return the same pointer twice.
+
+			    void* __p = std::align(__alignment, __bytes, _M_current_buf, _M_avail);
+			    if (__builtin_expect(__p == nullptr, false))
+				{
+				  _M_new_buffer(__bytes, __alignment);
+				  __p = _M_current_buf;
+				}
+			    _M_current_buf = (char*)_M_current_buf + __bytes;
+			    _M_avail -= __bytes;
+			    return __p;
+			  }
+
+			  void
+			  do_deallocate(void*, size_t, size_t) override
+			  { }
+
+			  bool
+			  do_is_equal(const memory_resource& __other) const noexcept override
+			  { return this == &__other; }
+
+			private:
+			  // Update _M_current_buf and _M_avail to refer to a new buffer with
+			  // at least the specified size and alignment, allocated from upstream.
+			  inline void
+			  _M_new_buffer(size_t bytes, size_t alignment)
+  			  {
+  			    const size_t n = std::max(bytes, _M_next_bufsiz);
+  			    const size_t m = aligned_ceil(alignment, alignof(std::max_align_t));
+  			    auto allocated = _Chunk::allocate(_M_upstream, n, m, _M_head);
+  			    _M_current_buf = allocated.first;
+  			    _M_avail = allocated.second;
+  			    _M_next_bufsiz *= _S_growth_factor;
+  			  }
+
+			  // Deallocate all buffers obtained from upstream.
+			  inline void
+			  _M_release_buffers() noexcept
+			  {
+				_Chunk::release(_M_head, _M_upstream);
+			  };
+
+			  static size_t
+			  _S_next_bufsize(size_t __buffer_size) noexcept
+			  {
+			    if (__builtin_expect(__buffer_size == 0, false))
+				__buffer_size = 1;
+			    return __buffer_size * _S_growth_factor;
+			  }
+
+			  static constexpr size_t _S_init_bufsize = 128 * sizeof(void*);
+			  static constexpr float _S_growth_factor = 1.5;
+
+			  void*	_M_current_buf = nullptr;
+			  size_t	_M_avail = 0;
+			  size_t	_M_next_bufsiz = _S_init_bufsize;
+
+			  // Initial values set at construction and reused by release():
+			  memory_resource* const	_M_upstream;
+			  void* const			_M_orig_buf = nullptr;
+			  size_t const		_M_orig_size = _M_next_bufsiz;
+
+			  class _Chunk
+			  {
+			  public:
+			    // Return the address and size of a block of memory allocated from __r,
+			    // of at least __size bytes and aligned to __align.
+			    // Add a new _Chunk to the front of the linked list at __head.
+			    static pair<void*, size_t>
+			    allocate(memory_resource* __r, size_t __size, size_t __align,
+			  	     _Chunk*& __head)
+			    {
+			      const size_t __orig_size = __size;
+			  
+			      // Add space for the _Chunk object and round up to 64 bytes.
+			      __size = aligned_ceil(__size + sizeof(_Chunk), 64);
+			  
+			      // Check for unsigned wraparound
+			      if (__size < __orig_size) [[unlikely]]
+			  	{
+			  	  // monotonic_buffer_resource::do_allocate is not allowed to throw.
+			  	  // If the required size is too large for size_t then ask the
+			  	  // upstream resource for an impossibly large size and alignment.
+			  	  __size = -1;
+			  	  __align = ~(size_t(-1) >> 1);
+			  	}
+			  
+			      void* __p = __r->allocate(__size, __align);
+			  
+			      // Add a chunk defined by (__p, __size, __align) to linked list __head.
+			      // We know the end of the buffer is suitably-aligned for a _Chunk
+			      // because the caller ensured __align is at least alignof(max_align_t).
+			      void* const __back = (char*)__p + __size - sizeof(_Chunk);
+			      __head = ::new(__back) _Chunk(__size, __align, __head);
+			      return { __p, __size - sizeof(_Chunk) };
+			    }
+			  
+			    // Return every chunk in linked list __head to resource __r.
+			    static void
+			    release(_Chunk*& __head, memory_resource* __r) noexcept
+			    {
+			      _Chunk* __next = __head;
+			      __head = nullptr;
+			      while (__next)
+			  	{
+			  	  _Chunk* __ch = __next;
+			  	  __next = __ch->_M_next;
+			  	  size_t __size = __ch->_M_size.size();
+			  	  size_t __align = __ch->_M_size.alignment();
+			  	  void* __start = (char*)(__ch + 1) - __size;
+			  	  __r->deallocate(__start, __size, __align);
+			  	}
+			    }
+			  
+			  private:
+			    _Chunk(size_t __size, size_t __align, _Chunk* __next) noexcept
+			    : _M_size(__size, __align), _M_next(__next)
+			    { }
+			  
+			    aligned_size<64> _M_size;
+			    _Chunk* _M_next;
+			  };
+			  _Chunk* _M_head = nullptr;
+		};
+	};
+};
+#else
+#pragma message "memory_resource"
+#include <c++/v1/memory_resource>
+#endif

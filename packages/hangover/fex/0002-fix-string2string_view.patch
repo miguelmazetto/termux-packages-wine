@@ -1,0 +1,11 @@
+--- a/FEXHeaderUtils/FEXHeaderUtils/Filesystem.h
++++ b/FEXHeaderUtils/FEXHeaderUtils/Filesystem.h
+@@ -286,7 +294,7 @@
+ 
+       // Only insert parts that contain data.
+       if (Size != 0) {
+-        Parts.emplace_back(std::string_view(Begin, End));
++        Parts.emplace_back(Path.substr(CurrentOffset, Size));
+       }
+ 
+       if (Size == 0) {
