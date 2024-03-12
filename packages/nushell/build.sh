@@ -2,18 +2,16 @@ TERMUX_PKG_HOMEPAGE=https://www.nushell.sh
 TERMUX_PKG_DESCRIPTION="A new type of shell operating on structured data"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="0.85.0"
+TERMUX_PKG_VERSION="0.91.0"
 TERMUX_PKG_SRCURL=https://github.com/nushell/nushell/archive/$TERMUX_PKG_VERSION.tar.gz
-TERMUX_PKG_SHA256=19e327b23fc08b519f5077e33908afa7967d98139a516c180d029b3ca0618da3
+TERMUX_PKG_SHA256=8957808c3d87b17c6e874b8382e8be45100e83c540556b2c43864c428c2b80b5
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="openssl, zlib"
 TERMUX_PKG_BUILD_IN_SRC=true
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--features=extra"
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS=("--no-default-features")
 
 termux_step_pre_configure() {
 	termux_setup_rust
-
-	export CFLAGS="${TARGET_CFLAGS}"
 
 	local _CARGO_TARGET_LIBDIR="target/${CARGO_TARGET_NAME}/release/deps"
 	mkdir -p $_CARGO_TARGET_LIBDIR
@@ -26,9 +24,12 @@ termux_step_pre_configure() {
 		echo "INPUT(-l:libunwind.a)" >libgcc.so
 		popd
 	fi
-	if [ $TERMUX_ARCH != "arm" ]; then
-		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" --features=dataframe"
+
+	local _features="default-no-clipboard extra"
+	if [ $TERMUX_ARCH != "i686" ] && [ $TERMUX_ARCH != "arm" ]; then
+		_features+=" dataframe"
 	fi
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=("--features=$_features")
 
 	: "${CARGO_HOME:=$HOME/.cargo}"
 	export CARGO_HOME
@@ -42,6 +43,16 @@ termux_step_pre_configure() {
 		$_CARGO_TARGET_LIBDIR/libz.so.1
 	ln -sfT $(readlink -f $TERMUX_PREFIX/lib/libz.so.tmp) \
 		$_CARGO_TARGET_LIBDIR/libz.so
+}
+
+termux_step_make_install() {
+	cargo install \
+			--path . \
+			--jobs $TERMUX_MAKE_PROCESSES \
+			--no-track \
+			--target $CARGO_TARGET_NAME \
+			--root $TERMUX_PREFIX \
+			"${TERMUX_PKG_EXTRA_CONFIGURE_ARGS[@]}"
 }
 
 termux_step_post_make_install() {
